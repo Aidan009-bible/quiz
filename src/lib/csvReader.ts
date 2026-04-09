@@ -80,12 +80,20 @@ function getFilesMatching(keyword: string): { chapter: number; filePath: string;
 
 // Normalise a raw row from any chapter CSV into consistent fields
 function normaliseQuestion(raw: Record<string, string>, chapter: number): ExamQuestion {
-  // Determine section — chapter 2 uses "fill_in_blank" etc.
+  // Determine section — handles both exact keys (e.g. 'reading') and full sentence prompts 
+  // (e.g. 'I. Read the passage and answer the questions that follow.')
   const rawSection = (raw.section || "").trim().toLowerCase().replace(/-/g, "_");
-  // Map "fill_in_blank" → "fill_blank", "argument"/"essay"/"letter" → "writing"
+  
   let section = rawSection;
-  if (rawSection === "fill_in_blank") section = "fill_blank";
-  if (["argument", "essay", "letter", "writing_argument", "writing_essay", "formal_letter"].includes(rawSection)) section = "writing";
+  if (rawSection.includes("read") || rawSection.includes("multiple_choice")) {
+    section = "reading";
+  } else if (rawSection.includes("fill in ") || rawSection === "fill_in_blank" || rawSection.includes("fill_blank")) {
+    section = "fill_blank";
+  } else if (rawSection.includes("rewrite")) {
+    section = "rewrite";
+  } else if (rawSection.includes("argument") || rawSection.includes("essay") || rawSection.includes("letter") || rawSection.includes("writing")) {
+    section = "writing";
+  }
 
   return {
     ...raw,
