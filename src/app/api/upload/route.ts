@@ -20,32 +20,70 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid file type specified." }, { status: 400 });
     }
 
-    // Determine the next chapter number and filename
+    // Determine the next chapter number based on locally built files 
+    // (on Vercel, this is whatever was packaged at deploy time)
     const chapter = nextChapterNumber(type);
     const filename = buildChapterFilename(type, chapter);
-    const dataDir = path.join(process.cwd(), "src", "data");
-
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    const filePath = `src/data/${filename}`;
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const targetPath = path.join(dataDir, filename);
 
-    await writeFile(targetPath, buffer);
+    const token = process.env.GITHUB_TOKEN;
+    const owner = process.env.GITHUB_OWNER || "Aidan009-bible";
+    const repo = process.env.GITHUB_REPO || "quiz";
+    const branch = process.env.GITHUB_BRANCH || "main";
+
+    // If we have a GitHub token, push directly via API (Vercel Prod mode)
+    if (token) {
+      console.log(`Pushing ${filename} to GitHub repository ${owner}/${repo}...`);
+      
+      const contentBase64 = buffer.toString('base64');
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+      
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `Add ${type} chapter ${chapter} via Admin Portal`,
+          content: contentBase64,
+          branch: branch,
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        console.error("GitHub API Error:", errJson);
+        return NextResponse.json({ error: `GitHub API Error: ${errJson.message}` }, { status: 500 });
+      }
+
+    } else {
+      // Local development fallback
+      console.log(`Saving ${filename} locally to ${filePath}...`);
+      const dataDir = path.join(process.cwd(), "src", "data");
+      if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+      const targetPath = path.join(dataDir, filename);
+      await writeFile(targetPath, buffer);
+    }
 
     const label = type === "learning" ? "Learning Course" : "Exam Questions";
-    return NextResponse.json({
-      message: `${label} saved as Chapter ${chapter} (${filename}). Refresh the relevant page to see the new content added alongside existing chapters.`,
-      chapter,
-      filename,
-    });
+    const message = token 
+      ? `${label} pushed exactly to GitHub as Chapter ${chapter} (${filename}). Vercel is now rebuilding the site... Please check back in ~1 minute to see the new content!`
+      : `${label} saved locally as Chapter ${chapter} (${filename}). Refresh to see it.`;
+
+    return NextResponse.json({ message, chapter, filename });
+
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json({ error: "Server error during upload." }, { status: 500 });
   }
 }
 
-// Also expose GET to list current chapters
+// Keep GET for listing current bundled chapters
 export async function GET() {
   try {
     const dataDir = path.join(process.cwd(), "src", "data");
