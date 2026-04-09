@@ -56,6 +56,23 @@ export default function UploadClient() {
     }
   };
 
+  const handleDelete = async (filename: string) => {
+    if (!confirm(`Are you sure you want to delete ${filename}? This action will permanently remove it from GitHub.`)) return;
+
+    try {
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, { method: "DELETE" });
+      const json = await res.json();
+      if (res.ok) {
+        alert(json.message);
+        loadFiles();
+      } else {
+        alert(json.error);
+      }
+    } catch {
+      alert("Failed to delete the file. Please check server logs.");
+    }
+  };
+
   const makeDropProps = (type: FileType) => ({
     onDragOver:  (e: React.DragEvent) => { e.preventDefault(); type === "learning" ? setLearningDrag(true)  : setQuestionsDrag(true);  },
     onDragLeave: ()                   => { type === "learning" ? setLearningDrag(false) : setQuestionsDrag(false); },
@@ -104,7 +121,10 @@ export default function UploadClient() {
               <strong>Existing chapters:</strong>
               <ul>
                 {learningFiles.map((f, i) => (
-                  <li key={f}><span className={styles.chNum}>Ch {i + 1}</span> {f}</li>
+                  <li key={f} className={styles.chapterItem}>
+                    <div><span className={styles.chNum}>Ch {i + 1}</span> <span>{f}</span></div>
+                    <button onClick={() => handleDelete(f)} className={styles.deleteBtn} title="Delete Chapter">✖</button>
+                  </li>
                 ))}
               </ul>
               <span className={styles.nextChip}>Next upload → Chapter {learningFiles.length + 1}</span>
@@ -137,7 +157,10 @@ export default function UploadClient() {
               <strong>Existing chapters:</strong>
               <ul>
                 {questionFiles.map((f, i) => (
-                  <li key={f}><span className={styles.chNum}>Ch {i + 1}</span> {f}</li>
+                  <li key={f} className={styles.chapterItem}>
+                    <div><span className={styles.chNum}>Ch {i + 1}</span> <span>{f}</span></div>
+                    <button onClick={() => handleDelete(f)} className={styles.deleteBtn} title="Delete Chapter">✖</button>
+                  </li>
                 ))}
               </ul>
               <span className={styles.nextChip}>Next upload → Chapter {questionFiles.length + 1}</span>

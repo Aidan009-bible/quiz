@@ -188,3 +188,37 @@
   .subtitle, .cardDesc, .dropZone p, .guide li { color: #94a3b8; }
   .cardDesc code, .guide code { background: rgba(0,0,0,0.3); }
 }
+
+.chapterItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #475569;
+  word-break: break-all;
+  padding: 0.35rem;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.1);
+}

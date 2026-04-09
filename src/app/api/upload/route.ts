@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, unlink } from "fs/promises";
 import path from "path";
 import fs from "fs";
 import { nextChapterNumber, buildChapterFilename } from "@/lib/csvReader";
@@ -20,8 +20,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid file type specified." }, { status: 400 });
     }
 
-    // Determine the next chapter number based on locally built files 
-    // (on Vercel, this is whatever was packaged at deploy time)
     const chapter = nextChapterNumber(type);
     const filename = buildChapterFilename(type, chapter);
     const filePath = `src/data/${filename}`;
@@ -34,34 +32,22 @@ export async function POST(req: NextRequest) {
     const repo = process.env.GITHUB_REPO || "quiz";
     const branch = process.env.GITHUB_BRANCH || "main";
 
-    // If we have a GitHub token, push directly via API (Vercel Prod mode)
     if (token) {
       console.log(`Pushing ${filename} to GitHub repository ${owner}/${repo}...`);
-      
       const contentBase64 = buffer.toString('base64');
       const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
       
-      // Step 1: Check if the file already exists on GitHub to get its SHA.
-      // This prevents the "sha wasn't supplied" error if a file was recently
-      // uploaded but Vercel hasn't finished redeploying yet.
       let fileSha: string | undefined;
       try {
-        const getRes = await fetch(url, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github.v3+json",
-          }
-        });
+        const getRes = await fetch(url, { headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" } });
         if (getRes.ok) {
           const getJson = await getRes.json();
           fileSha = getJson.sha;
-          console.log(`Found existing file on GitHub (SHA: ${fileSha}). Will overwrite.`);
         }
       } catch (e) {
-        console.log("File does not exist on GitHub yet or check failed.");
+        // ignore
       }
 
-      // Step 2: Push the new content (with the sha if we are overwriting)
       const putBody: Record<string, string> = {
         message: `Add ${type} chapter ${chapter} via Admin Portal`,
         content: contentBase64,
@@ -81,13 +67,10 @@ export async function POST(req: NextRequest) {
 
       if (!res.ok) {
         const errJson = await res.json();
-        console.error("GitHub API Error:", errJson);
         return NextResponse.json({ error: `GitHub API Error: ${errJson.message}` }, { status: 500 });
       }
 
     } else {
-      // Local development fallback
-      console.log(`Saving ${filename} locally to ${filePath}...`);
       const dataDir = path.join(process.cwd(), "src", "data");
       if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
       const targetPath = path.join(dataDir, filename);
@@ -96,14 +79,81 @@ export async function POST(req: NextRequest) {
 
     const label = type === "learning" ? "Learning Course" : "Exam Questions";
     const message = token 
-      ? `${label} pushed exactly to GitHub as Chapter ${chapter} (${filename}). Vercel is now rebuilding the site... Please check back in ~1 minute to see the new content!`
-      : `${label} saved locally as Chapter ${chapter} (${filename}). Refresh to see it.`;
+      ? `${label} pushed to GitHub as Chapter ${chapter} (${filename}). Vercel is now rebuilding...`
+      : `${label} saved locally as Chapter ${chapter}.`;
 
     return NextResponse.json({ message, chapter, filename });
 
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json({ error: "Server error during upload." }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const filename = searchParams.get("filename");
+    
+    if (!filename) {
+      return NextResponse.json({ error: "Missing filename." }, { status: 400 });
+    }
+
+    const token = process.env.GITHUB_TOKEN;
+    const owner = process.env.GITHUB_OWNER || "Aidan009-bible";
+    const repo = process.env.GITHUB_REPO || "quiz";
+    const branch = process.env.GITHUB_BRANCH || "main";
+    const filePath = `src/data/${filename}`;
+
+    if (token) {
+      console.log(`Deleting ${filename} from GitHub repository ${owner}/${repo}...`);
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+      
+      let fileSha: string | undefined;
+      try {
+        const getRes = await fetch(url, { headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" } });
+        if (getRes.ok) {
+          fileSha = (await getRes.json()).sha;
+        } else {
+          return NextResponse.json({ error: "File not found on GitHub." }, { status: 404 });
+        }
+      } catch (e) {
+        return NextResponse.json({ error: "Failed to fetch file metadata from GitHub." }, { status: 500 });
+      }
+
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `Delete chapter ${filename} via Admin Portal`,
+          sha: fileSha,
+          branch: branch,
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        return NextResponse.json({ error: `GitHub API Error: ${errJson.message}` }, { status: 500 });
+      }
+
+    } else {
+      const targetPath = path.join(process.cwd(), "src", "data", filename);
+      if (fs.existsSync(targetPath)) {
+        await unlink(targetPath);
+      } else {
+        return NextResponse.json({ error: "File not found locally." }, { status: 404 });
+      }
+    }
+
+    return NextResponse.json({ message: `🗑️ Deleted ${filename} successfully. Vercel will rebuild shortly.` });
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    return NextResponse.json({ error: "Server error during deletion." }, { status: 500 });
   }
 }
 
