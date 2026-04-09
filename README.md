@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MEP English Promotion Exam System
 
-## Getting Started
+An interactive English sample question system and learning platform customized for the **Promotion Examination For Officers at the Ministry of Electrical Power**.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Learning Section (`/learn`)**: A study module offering preview materials, sample passages, grammar rules, and formatting examples for subjective questions.
+- **Interactive Mock Examination (`/exam`)**: A step-by-step digital exam covering 5 specific question formats:
+  1. Reading Comprehension (Energy, Electricity, Power themed)
+  2. Fill in the Blank (with dynamic interactive Word Banks)
+  3. Rewrite the following questions (Grammar, phrase, proposition, a/an/the)
+  4. Essay Writing
+  5. Letter Writing
+- **Dynamic Content Engine**: Exam questions are parsed securely from a local CSV database allowing non-technical personnel to easily update the underlying question bank.
+- **Immediate Feedback**: Following each submitted answer, the user is provided with the correct/model answer and a comprehensive explanation promoting instantaneous learning. 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technology Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js 15 (App Router)**: Utilizing server-side processing for secure data reading and optimized navigational routing.
+- **Vanilla CSS Modules**: Elegantly styled utilizing modern UI paradigms like glassmorphism algorithms and custom layouts natively without CSS frameworks.
+- **PapaParse**: Utilized within the server environment (`src/lib/csvReader.ts`) to robustly map the local CSV data.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Getting Started Locally
 
-## Learn More
+1. **Install required dependencies:**
+   ```bash
+   npm install
+   ```
+   
+2. **Launch the development server:**
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Open your favorite web browser and navigate to [http://localhost:3000](http://localhost:3000) to view the system.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Modifying the Exam Questions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The examination application is driven by a dynamic CSV database located exactly at:
+`src/data/questions.csv`
 
-## Deploy on Vercel
+To manage, update, or expand the questions, you can modify the text rows in the CSV manually or using Microsoft Excel. Be sure to preserve the column headers exactly as they are configured: 
+`(id, type, content, options, answer, explanation)`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Production Deployment to Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This architecture is optimized for seamless deployment targeting the [Vercel](https://vercel.com) hosting layer.
+
+1. Init a `.git` repository, commit your finalized changes, and push code to a connected GitHub account.
+2. Sign in to your [Vercel account](https://vercel.com), click **Add New** -> **Project**, and import the newly pushed GitHub repository.
+3. Simply keep default parameters and click **"Deploy"**. The build and delivery will compile automatically and supply a public URL.

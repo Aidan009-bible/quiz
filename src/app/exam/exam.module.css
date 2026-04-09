@@ -1,0 +1,515 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 4rem;
+}
+
+/* ── Section progress nav ─────────────────────────── */
+.sectionNav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+  padding: 0.75rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+/* Each tab is a real clickable button */
+.sectionStep {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s, background 0.2s, transform 0.15s;
+  color: var(--foreground);
+  font-family: inherit;
+  position: relative;
+}
+
+.sectionStep:hover {
+  opacity: 0.85;
+  background: rgba(59, 130, 246, 0.06);
+  transform: translateY(-1px);
+}
+
+.sectionStepActive {
+  opacity: 1;
+  background: rgba(59, 130, 246, 0.12);
+  outline: 2px solid var(--primary);
+}
+
+.sectionStepDone {
+  opacity: 0.9;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.doneCheck {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.doneBar {
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 4px solid var(--success);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.stepIcon { font-size: 1.5rem; }
+.stepLabel { font-size: 0.75rem; font-weight: 600; text-align: center; }
+
+/* ── Card ─────────────────────────────────────────── */
+.card {
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+}
+
+.qMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.sectionTag {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  background: rgba(236, 72, 153, 0.1);
+  color: var(--secondary);
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.qCounter {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ── Passage ─────────────────────────────────────── */
+.passage {
+  background: rgba(59, 130, 246, 0.04);
+  border-left: 4px solid var(--primary);
+  padding: 1.5rem;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-bottom: 2rem;
+}
+
+.passage p {
+  line-height: 1.8;
+  margin-top: 0.75rem;
+}
+
+.passageLabel {
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.passageToggle {
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.passageToggle p {
+  margin-top: 1rem;
+  line-height: 1.8;
+  color: var(--foreground);
+}
+
+/* ── Question text ───────────────────────────────── */
+.questionText {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.marks {
+  display: inline-block;
+  font-size: 0.8rem;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.instruction {
+  color: #64748b;
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+}
+
+.rewriteInstruction {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ── Fill in the blank ───────────────────────────── */
+.wordBank {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px dashed rgba(59, 130, 246, 0.5);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.wordBank strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--primary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wordBankList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wordBadge {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.fillBox {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.fillParagraph {
+  font-size: 1.05rem;
+  line-height: 2.2;
+}
+
+.blankInput {
+  display: inline-block;
+  width: 120px;
+  border: none;
+  border-bottom: 2px solid var(--primary);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: center;
+  padding: 0.1rem 0.25rem;
+  margin: 0 0.25rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.blankInput:focus { border-color: var(--accent); }
+
+.blankCorrect {
+  display: inline-block;
+  color: var(--success);
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0 0.4rem;
+  border-radius: 4px;
+  margin: 0 0.25rem;
+}
+
+.blankWrong {
+  display: inline-block;
+  color: var(--error);
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0 0.4rem;
+  border-radius: 4px;
+  margin: 0 0.25rem;
+  text-decoration: line-through;
+}
+
+.blankResults {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.blankResultRow {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 1rem;
+  align-items: start;
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.blankRowCorrect { border-color: rgba(16, 185, 129, 0.4); }
+.blankRowWrong   { border-color: rgba(239, 68, 68, 0.4); }
+
+.blankNum {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  padding-top: 0.15rem;
+}
+
+.blankDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.yourLabel { color: #64748b; }
+.correctLabel { color: var(--success); }
+.correct { color: var(--success); font-weight: 700; }
+.wrong { color: var(--error); font-weight: 700; }
+.explText { color: #64748b; font-size: 0.85rem; margin-top: 0.25rem; }
+
+/* ── Form & inputs ───────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.largeInput {
+  font-size: 1.1rem;
+  padding: 1rem;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 220px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.submitBtn {
+  align-self: flex-start;
+  padding: 0.9rem 2rem;
+  font-size: 1.1rem;
+}
+
+.submitBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Results ─────────────────────────────────────── */
+.resultHeading {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--success);
+}
+
+.resultView {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.userAnswerBox {
+  background: var(--surface);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid #94a3b8;
+}
+
+.userAnswerBox p { margin-top: 0.5rem; line-height: 1.6; }
+
+.correctAnswerBox {
+  background: rgba(16, 185, 129, 0.05);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--success);
+}
+
+.correctAnswerBox p {
+  margin-top: 0.5rem;
+  color: var(--success);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.explanationBox {
+  background: var(--background);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.explanationBox p { margin-top: 0.5rem; line-height: 1.6; }
+
+.nextBtn {
+  align-self: flex-end;
+  padding: 0.9rem 2rem;
+}
+
+@media (max-width: 600px) {
+  .card { padding: 1.5rem; }
+  .sectionNav { gap: 0.25rem; }
+  .sectionStep { min-width: 80px; }
+  .stepLabel { font-size: 0.65rem; }
+  .blankResultRow { grid-template-columns: 1fr; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .passage, .fillBox, .rewriteInstruction {
+    background: rgba(0,0,0,0.2);
+  }
+  .sectionNav { background: rgba(0,0,0,0.2); }
+}
+
+/* ── Chapter picker ──────────────────────────────── */
+.pickerContainer {
+  padding-bottom: 4rem;
+}
+
+.pickerHeader {
+  margin-bottom: 2.5rem;
+}
+
+.pickerTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pickerSub {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.chapterCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.chapterCard {
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: var(--foreground);
+  font-family: inherit;
+}
+
+.chapterCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.chapterCardNum {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.chapterCardSections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.sectionPill {
+  background: rgba(59,130,246,0.1);
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.chapterCardFile {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  word-break: break-all;
+}
+
+.startBtn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* ── Top bar ─────────────────────────────────────── */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.backBtn {
+  padding: 0.45rem 1rem !important;
+  font-size: 0.88rem;
+}
+
+.chapterLabel {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
