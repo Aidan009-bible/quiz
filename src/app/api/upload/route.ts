@@ -41,6 +41,34 @@ export async function POST(req: NextRequest) {
       const contentBase64 = buffer.toString('base64');
       const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
       
+      // Step 1: Check if the file already exists on GitHub to get its SHA.
+      // This prevents the "sha wasn't supplied" error if a file was recently
+      // uploaded but Vercel hasn't finished redeploying yet.
+      let fileSha: string | undefined;
+      try {
+        const getRes = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github.v3+json",
+          }
+        });
+        if (getRes.ok) {
+          const getJson = await getRes.json();
+          fileSha = getJson.sha;
+          console.log(`Found existing file on GitHub (SHA: ${fileSha}). Will overwrite.`);
+        }
+      } catch (e) {
+        console.log("File does not exist on GitHub yet or check failed.");
+      }
+
+      // Step 2: Push the new content (with the sha if we are overwriting)
+      const putBody: Record<string, string> = {
+        message: `Add ${type} chapter ${chapter} via Admin Portal`,
+        content: contentBase64,
+        branch: branch,
+      };
+      if (fileSha) putBody.sha = fileSha;
+
       const res = await fetch(url, {
         method: "PUT",
         headers: {
@@ -48,11 +76,7 @@ export async function POST(req: NextRequest) {
           "Accept": "application/vnd.github.v3+json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          message: `Add ${type} chapter ${chapter} via Admin Portal`,
-          content: contentBase64,
-          branch: branch,
-        }),
+        body: JSON.stringify(putBody),
       });
 
       if (!res.ok) {
